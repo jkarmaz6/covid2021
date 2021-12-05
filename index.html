@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Free Covid-19 Testing Sites</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("COVID-19.png");
+            background-color: 'gray';
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 22px;
+            color: white;
+        }
+        h2 {
+            display: inline-block;
+            margin-right: 16px;
+            color: white;
+            padding: 10px 30%;
+        }
+        #map1 {
+            width: 70%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        h3 {
+            display: inline-block;
+            margin-right: 16px;
+            color: white;
+            padding: 10px 30%;
+        }
+        #map2 {
+            width:70%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        h4 {
+            display: inline-block;
+            margin-right: 16px;
+            color: white;
+            padding: 10px 30%;
+        }
+        #map3 {
+            width:70%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 50%;
+            color: white;
+        }
+        p1 {
+            font-size: 1em;
+            color: white;
+        }
+        p2 {
+            font-size: 0.8em;
+            color: white;
+        }
+        .info{
+            padding: 6px 8px;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .info h5{
+            margin: 0 0 5px;
+            color: #777;
+        }
+        .legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 20px;
+    height: 22px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.9;
+}
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>COVID-19 in Philadelphia</h1>
+        
+    </header>
+    <h2>Free Testing Sites</h2>
+    <div id='map1'></div>
+    <h3> Vaccination Rates by ZIP Code</h3>
+    <div id='map2'></div>
+    <h3> COVID Deaths by ZIP Code</h3>
+    <div id='map3'></div>
+    <footer>
+        <p1>All data was provided through the City of Philadelphia. This information and more can be found through their <a href="https://www.opendataphilly.com">open data website </a>. All data represented in the maps above is as of December 3rd, 2021.  </p1>
+        <p2><br><br>Map authored by Jeff Karmazin</p2>
+    </footer>
+
+    <script src="testSites.js"></script>
+    <script src="Zips2.js"></script>
+    <script>
+
+      var map1 = L.map('map1', {
+          center: [39.993170281931086, -75.15401883338122],
+          zoom: 11,
+      });
+      
+        var map2 = L.map('map2', {
+          center: [39.993170281931086, -75.15401883338122],
+          zoom: 11,
+      });
+        
+        var map3 = L.map('map3', {
+          center: [39.993170281931086, -75.15401883338122],
+          zoom: 11,
+      });
+        
+        /////Map 1 Tiles
+        var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });  
+      tiles.addTo(map1);
+        
+        /////Map 2 Tiles
+     var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });   
+        tiles.addTo(map2);
+        
+        /////Map 3 Tiles
+        var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });   
+        tiles.addTo(map3);
+        
+       
+//////////////////////////////////////////////// MAP 1 /////////////////////////////////////////////////////////////////////////////
+     //////////////////////////////////         Rapid       Sites           ///////////////////////////////////
+    var rapid = L.geoJson(testSites,               
+                {
+          pointToLayer: function(feature, coordinates) {
+              console.log(feature.properties)
+              return L.circleMarker(coordinates, {
+                  color: 'purple',
+                 weight: 1,
+                 fillColor: 'maroon',
+                 fillOpacity: .5,
+                 radius: 4 
+              });      
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.rapid_testing == "Yes"){
+                  return true
+              };
+             console.log(feature);
+          },
+         
+        
+    //Each Feature
+    onEachFeature : function(feature,layer) {
+        
+        layer.on('mouseover', function() {
+    layer.setStyle({
+        fillOpacity: .8,
+        radius: 11
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillOpacity: .5,
+        radius: 4
+    });
+});
+        
+          /////popup stuff
+          var name = feature.properties.testing_location_nameoperator
+          var address = feature.properties.testing_location_address
+          /////drive thru variable
+          if (feature.properties.drive_thruwalk_up  == "wu"){
+              var drivethru = "walk up"}
+        else if (feature.properties.drive_thruwalk_up == "dt"){
+            var drivethru = "drive-thru"}
+        else if (feature.properties.drive_thruwalk_up == "both"){
+            var drivethru = "both"
+        }
+        
+        
+        ///// pop up text
+        var popup = ("<b>"+name+"</b><br>"
+              + address + "<br>" + "Drive-thru or walk-up: " + drivethru+ "<br>"+ "<a href=" + feature.properties.ProviderURL + ">More information</a>");
+                       layer.bindPopup(popup);
+        }
+              
+          }).addTo(map1);
+      /////////////////////////////////      Not      Rapid      Sites        ////////////////////////////////////////////
+     var notRapid = L.geoJson(testSites,               
+                {
+          pointToLayer: function(feature, coordinates) {
+              console.log(feature.properties)
+              return L.circleMarker(coordinates, {
+                  color: 'orange',
+                 weight: 1,
+                 fillColor: 'yellow',
+                 fillOpacity: .5,
+                 radius: 4 
+              });      
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.rapid_testing != "Yes"){
+                  return true
+              };
+             console.log(feature);
+          },
+         
+        
+    //Each Feature
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillOpacity: .8,
+        radius: 11
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillOpacity: .5,
+        radius: 4
+    });
+});
+
+
+           
+          //popup stuff
+          var name = feature.properties.testing_location_nameoperator
+          var address = feature.properties.testing_location_address
+          //drive thru variable
+          if (feature.properties.drive_thruwalk_up  == "wu"){
+              var drivethru = "walk up"}
+        else if (feature.properties.drive_thruwalk_up == "dt"){
+            var drivethru = "drive-thru"}
+        else if (feature.properties.drive_thruwalk_up == "both"){
+            var drivethru = "both"
+        }
+        
+        var popup = ("<b>"+name+"</b><br>"
+              + address + "<br>" + "Drive-thru or walk-up: " + drivethru+"<br>"+ "<a href=" + feature.properties.ProviderURL + ">More information</a>");
+                       layer.bindPopup(popup);
+        }
+              
+          }).addTo(map1);  
+        // Layer Conrol//
+        var testLayer ={"<b style='color:purple' >Rapid Testing Site</b" : rapid, "<b style='color:orange'>Non-Rapid Testing Site</b>" : notRapid} 
+        L.control.layers(null, testLayer, {collpased: false}).addTo(map1);
+        
+///////////////////////////////////////////// MAP 2 //////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////     Zip Codes    //////////////////////////////////////////
+        //// Full Vaccinations ////
+        var full = L.geoJson(zips, {style: styleMap2Full, 
+            onEachFeature: onEachFeatureFull,
+            filter : function(feature, layer){
+              if (feature.properties.twodose != null) {
+                  return true}
+                else if( feature.properties.onedose != null) {
+                    return true
+                }
+            }, 
+        
+        }).addTo(map2)
+       
+        var info = L.control();
+        info.onAdd = function (map2) {
+                        this._div = L.DomUtil.create('div', 'info');
+                                    this.update();
+                                    return this._div;
+                                   };
+                             info.update = function(props) {
+            this._div.innerHTML = '<h5> For Vaccination Information</h5>' + (props ? '<b>' + full.CODE 
+                                                                          + '</b><br/>' + props.twodose +' people vaccinated' : 'Click on a ZIP code');
+        };
+        info.addTo(map2); 
+        ///// Partial Vaccinations /////
+        var partial = L.geoJson(zips, {style: styleMap2Partial, 
+            onEachFeature: onEachFeaturePartial,
+            filter : function(feature, layer){
+              if (feature.properties.onedose != null) {
+                  return true}
+                else if( feature.properties.twodose != null) {
+                    return true
+                }
+            }, 
+        
+                                                            
+        }).addTo(map2);
+        
+        // Layer Conrol//        
+        var baseLayers = {
+            "<b style='color:green' >Full Vaccination Rates</b" : full,
+            "<b style='color:blue'>Partial Vaccination Rates</b>" : partial
+        }
+         
+        L.control.layers(baseLayers, null, {collpased: false}).addTo(map2);
+    
+        
+    ///// Choropleth functions /////        
+     /// get green color function for map 2 Full vaccination totals ///
+        function getColorGreen(d){
+            return d > 70 ? '#006d2c' :
+                    d > 60 ? '#31a354' :
+                    d > 50 ? '#74c476' :
+                                '#bae4b3' ;
+        }
+        /// get green blue function for map 2 Partial vaccination totals ///
+        function getColorBlue(d){
+            return d > 15 ? '#08519c' :
+                    d > 12 ? '#3182bd' :
+                    d > 9 ? '#6baed6' :
+                                '#bdd7e7' ;
+        }
+    /// style for Full ///
+        function styleMap2Full(feature){
+            return {
+                fillColor: getColorGreen(feature.properties.two_pct),
+                weight: 2,
+                opacity: 1,
+                color: getColorGreen(feature.properties.two_pct),
+                dashArray: 3,
+                fillOpacity: 0.6
+            };
+        }
+        /// style for Partial ///
+        function styleMap2Partial(feature){
+            return {
+                fillColor: getColorBlue(feature.properties.onedose_pc),
+                weight: 2,
+                opacity: 1,
+                color: getColorBlue(feature.properties.onedose_pc),
+                dashArray: 3,
+                fillOpacity: 0.6
+            };
+        }
+     /// function highight feature ///
+        function highlightFeature(e){
+            var layer = e.target;
+            layer.setStyle({
+                weight: 5,
+                
+                dashArray: '',
+                fillOpacity: 0.9
+            }); 
+            
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge){
+                layer.bringToFront();
+                };
+            
+        }
+        
+    
+        
+    function resetHighlightFull(e){
+        full.resetStyle(e.target);
+    }
+        function resetHighlightPartial(e){
+        partial.resetStyle(e.target);
+    }
+     
+        
+        /// on each feature ///
+        function onEachFeatureFull(feature, layer){
+                                    layer.on({
+                                    mouseover:highlightFeature,
+                                    mouseout: resetHighlightFull
+                                   });
+            var fullRate = feature.properties.two_pct
+            layer.bindPopup('<b>' + feature.properties.CODE + '</b><br>Population: ' + feature.properties.pop +'<br> Fully Vaccinated Total:' + + feature.properties.twodose +' </b><br>Full Vaccination Rate: ' + fullRate + '%')
+                                   } 
+        function onEachFeaturePartial(feature, layer){
+                                    layer.on({
+                                    mouseover:highlightFeature,
+                                    mouseout: resetHighlightPartial
+                                   });
+            
+            var partialRate = feature.properties.part_pct
+            layer.bindPopup('<b>' + feature.properties.CODE + '</b><br>Population: ' + feature.properties.pop +'<br> One Dose Totals:' + + feature.properties.onedose +'<br>Partial Vaccination Rate: ' + partialRate + '%')
+                                   } 
+////////////////// LEGENDS ///////////////////
+        ///////  LEGEND 1 /////////////
+        var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 50, 60, 70],
+        blueGrades = [0, 9, 12, 15],
+        labels = [];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColorGreen(grades[i] + 1) + '"></i> '   + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '% <br><br>' : '% +');
+    }
+   
+    return div;
+};
+
+legend.addTo(map2);
+        
+        /////////////////////////////LEGEND 2
+        var legend2 = L.control({position: 'bottomright'});
+
+legend2.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 50, 60, 70],
+        blueGrades = [0, 9, 12, 15],
+        labels = [];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColorBlue(blueGrades[i] + 1) + '"></i> '   + blueGrades[i] + (blueGrades[i + 1] ? ' &ndash;' + blueGrades[i + 1] + '% <br><br>' : '% +');
+    }
+   
+    return div;
+};
+
+legend2.addTo(map2);
+        
+///////////////////////////////// MAP 3 ////////////////////////////////////////////
+        
+        //// Full Vaccinations ////
+        var deaths = L.geoJson(zips, {style: styleMap3, 
+            onEachFeature: onEachFeature3,
+            filter : function(feature, layer){
+              if (feature.properties.covid_deaths != null) {
+                  return true}
+                
+            }, 
+        
+        }).addTo(map3)
+       
+        var info2 = L.control();
+        info2.onAdd = function (map3) {
+                        this._div = L.DomUtil.create('div', 'info');
+                                    this.update();
+                                    return this._div;
+                                   };
+                             info2.update = function(props) {
+            this._div.innerHTML = '<h5> For Information on COVID Deaths</h5>' + (props ? '<b>' + deaths.CODE 
+                                                                          + '</b><br/>' + props.deaths +' deaths' : 'Click on a ZIP code');
+        };
+        info2.addTo(map3); 
+       
+        
+       
+    ///// Choropleth functions /////        
+     /// get green color function for map 2 Full vaccination totals ///
+        function getColorRed(d){
+            return d > 150 ? '#a50f15' :
+                    d > 75 ? '#de2d26' :
+                    d > 40 ? '#fcae91' :
+                                '#fee5d9' ;
+        }
+    /// style for Full ///
+        function styleMap3(feature){
+            return {
+                fillColor: getColorRed(feature.properties.covid_deaths),
+                weight: 2,
+                opacity: 1,
+                color: getColorRed(feature.properties.covid_deaths),
+                dashArray: 3,
+                fillOpacity: 0.6
+            };
+        }
+       
+     /// function highight feature ///
+        function highlightFeature(e){
+            var layer2 = e.target;
+            layer2.setStyle({
+                weight: 5,
+                
+                dashArray: '',
+                fillOpacity: 0.9
+            }); 
+            
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge){
+                layer2.bringToFront();
+                };
+            
+        }
+        
+    
+        
+    function resetHighlight(e){
+        deaths.resetStyle(e.target);
+    }
+     
+        
+        /// on each feature ///
+        function onEachFeature3(feature, layer2){
+                                    layer2.on({
+                                    mouseover:highlightFeature,
+                                    mouseout: resetHighlight
+                                   });
+            layer2.bindPopup('<b>' + feature.properties.CODE +' </b><br>Death Total: ' + feature.properties.covid_deaths )
+                                   } 
+        
+        var legend3 = L.control({position: 'bottomright'});
+
+legend3.onAdd = function (map3) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades2 = [0, 40, 75, 150],
+        labels2 = [];
+
+    //LEGEND
+    for (var i = 0; i < grades2.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColorRed(grades2[i] + 1) + '"></i> '+ grades2[i] + (grades2[i + 1] ? '&ndash;' + grades2[i + 1] + '<br><br>' : '+');
+    }
+   
+    return div;
+};
+
+legend3.addTo(map3);
+        
+        
+
+          
+    </script>
+    
+</body>
+
+</html>
